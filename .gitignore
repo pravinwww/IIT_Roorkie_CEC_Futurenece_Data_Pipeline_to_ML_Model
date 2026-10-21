@@ -13,3 +13,10 @@ airflow.db
 .astro/*.local.yml
 .astro/*.local.yaml
 test_api.py 
+
+# NammaMart submission: never publish the warehouse (raw_customers holds unmasked personal data) or run outputs
+include/warehouse_pravin.duckdb
+include/warehouse_pravin.duckdb.wal
+include/quarantine/pravin/
+include/work/
+*.duckdb.wal

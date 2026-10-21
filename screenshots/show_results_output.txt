@@ -1,0 +1,92 @@
+
+====================================================================================================
+SCREENSHOT 5a - dq_results: latest run, summary per pipeline
+====================================================================================================
+              dag_id                               run_id status  checks
+nammamart_elt_pravin scheduled__2026-10-21T03:30:00+00:00   FAIL      26
+nammamart_elt_pravin scheduled__2026-10-21T03:30:00+00:00   PASS      43
+nammamart_elt_pravin scheduled__2026-10-21T03:30:00+00:00   WARN      11
+nammamart_etl_pravin scheduled__2026-10-21T03:30:00+00:00   FAIL      26
+nammamart_etl_pravin                   exp4b_missing_file   FAIL      26
+nammamart_etl_pravin scheduled__2026-10-21T03:30:00+00:00   PASS      43
+nammamart_etl_pravin                   exp4b_missing_file   PASS      43
+nammamart_etl_pravin scheduled__2026-10-21T03:30:00+00:00   WARN      11
+nammamart_etl_pravin                   exp4b_missing_file   WARN      11
+
+====================================================================================================
+SCREENSHOT 5b - dq_results: failing checks (first 15)
+====================================================================================================
+              dag_id                            check_name    dimension severity  rows_checked  rows_failed status
+nammamart_etl_pravin payments.success_amount_matches_order  Consistency Critical          2228           14   FAIL
+nammamart_etl_pravin              payments.amount_positive     Accuracy Critical          2228           10   FAIL
+nammamart_etl_pravin          payments.payment_mode_format     Validity  Warning          2228            8   WARN
+nammamart_etl_pravin         payments.payment_order_exists  Consistency Critical          2228            8   FAIL
+nammamart_etl_pravin        payments.payment_ts_not_future   Timeliness Critical          2228            7   FAIL
+nammamart_etl_pravin            payments.payment_id_unique   Uniqueness Critical          2228            4   FAIL
+nammamart_etl_pravin           payments.payment_mode_valid     Validity Critical          2228            2   FAIL
+nammamart_etl_pravin           orders.customer_id_not_null Completeness Critical          2412           18   FAIL
+nammamart_etl_pravin         orders.amount_matches_formula     Accuracy Critical          2412           18   FAIL
+nammamart_etl_pravin                orders.order_id_unique   Uniqueness Critical          2412           12   FAIL
+nammamart_etl_pravin              orders.quantity_positive     Accuracy Critical          2412           10   FAIL
+nammamart_etl_pravin                 orders.product_exists  Consistency Critical          2412            9   FAIL
+nammamart_etl_pravin orders.delivered_has_delivery_minutes Completeness Critical          2412            8   FAIL
+nammamart_etl_pravin            orders.payment_mode_format     Validity  Warning          2412            8   WARN
+nammamart_etl_pravin            orders.order_ts_not_future   Timeliness Critical          2412            7   FAIL
+
+====================================================================================================
+SCREENSHOT 5c - pipeline_runs (run audit)
+====================================================================================================
+                              run_id               dag_id                 start_time                   end_time  rows_extracted  rows_loaded  rows_quarantined                                                                       status
+scheduled__2026-10-21T03:30:00+00:00 nammamart_etl_pravin 2026-10-21 10:20:53.584757 2026-10-21 10:21:06.712158            5372         3023               165                                                                      success
+scheduled__2026-10-21T03:30:00+00:00 nammamart_elt_pravin 2026-10-21 10:21:26.641888 2026-10-21 10:21:50.438291            5372         5372               165                                                                      success
+                  exp4b_missing_file nammamart_etl_pravin 2026-10-21 10:35:36.841419 2026-10-21 10:35:45.078382            5372         3023               165                                                                      success
+                   exp4_missing_file nammamart_etl_pravin 2026-10-21 10:24:14.432249 2026-10-21 10:28:22.673769            5220            0                 0 failed: extract_products,validate,quarantine,transform,load,reconcile,report
+
+====================================================================================================
+SCREENSHOT 6a - payment reconciliation, ELT (summary by type)
+====================================================================================================
+              mismatch_type  orders
+                 NO_PAYMENT     178
+PAYMENT_WITHOUT_CLEAN_ORDER      96
+             PAYMENT_FAILED      42
+            AMOUNT_MISMATCH      13
+
+====================================================================================================
+SCREENSHOT 6b - payment reconciliation, ETL (summary by type)
+====================================================================================================
+              mismatch_type  orders
+                 NO_PAYMENT     178
+PAYMENT_WITHOUT_CLEAN_ORDER      96
+             PAYMENT_FAILED      42
+            AMOUNT_MISMATCH      13
+
+====================================================================================================
+SCREENSHOT 6c - payment reconciliation detail, ELT (first 12 rows)
+====================================================================================================
+ order_id payment_id   mismatch_type  order_amount  amount_paid  unreconciled_amount order_status payment_status
+ORD000178 PAY0001139 AMOUNT_MISMATCH        378.00       353.00                 25.0    DELIVERED        SUCCESS
+ORD000371 PAY0002183 AMOUNT_MISMATCH        980.40       955.40                 25.0    DELIVERED        SUCCESS
+ORD000481 PAY0000586 AMOUNT_MISMATCH        102.60         2.60                100.0    DELIVERED        SUCCESS
+ORD001031 PAY0001568 AMOUNT_MISMATCH         56.95       -43.05                100.0    DELIVERED        SUCCESS
+ORD001039 PAY0000161 AMOUNT_MISMATCH        282.20       232.20                 50.0    DELIVERED        SUCCESS
+ORD001360 PAY0000909 AMOUNT_MISMATCH        203.00       103.00                100.0    DELIVERED        SUCCESS
+ORD001572 PAY0001813 AMOUNT_MISMATCH        502.40       402.40                100.0    DELIVERED        SUCCESS
+ORD001753 PAY0001167 AMOUNT_MISMATCH        502.35       452.35                 50.0    DELIVERED        SUCCESS
+ORD001832 PAY0001499 AMOUNT_MISMATCH        374.30       349.30                 25.0    DELIVERED        SUCCESS
+ORD001840 PAY0000779 AMOUNT_MISMATCH        102.60         2.60                100.0    DELIVERED        SUCCESS
+ORD001864 PAY0000323 AMOUNT_MISMATCH        192.95       182.95                 10.0    DELIVERED        SUCCESS
+ORD001937 PAY0000354 AMOUNT_MISMATCH        505.00       455.00                 50.0    DELIVERED        SUCCESS
+
+====================================================================================================
+SCREENSHOT 6d - total unreconciled amount (ELT vs ETL)
+====================================================================================================
+pipeline  rows  unreconciled_amount
+     ELT   329            204559.55
+     ETL   329            204559.55
+
+====================================================================================================
+BONUS - store capacity status (ELT)
+====================================================================================================
+ capacity_status  store_days
+              OK         432
+CAPACITY_UNKNOWN          31
